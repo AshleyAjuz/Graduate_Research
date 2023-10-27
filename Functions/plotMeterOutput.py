@@ -2,7 +2,9 @@ import os
 import csv
 import matplotlib.pyplot as plt
 
-def plotMeterOutput(csv_fileName):
+#Function to plot the energy meter readings as a function of time
+def plotMeterOutput(csv_fileName, my_path):
+    
     #Boolean variable to ensure code ran succesfully (Could also use try catch blocks if needed)
     codeFinished = False
 
@@ -26,18 +28,18 @@ def plotMeterOutput(csv_fileName):
     #List to store time intervals from 0-48 (AKA the length of the meter readings list)
     number_list = [i for i in range(len(total_readings[1]))]
 
+    fig = plt.figure()
+    
     #Plot all of the graphs
     for i in range(num_objects):
         plt.scatter(x=number_list, y=total_readings[i])
 
     plt.xlabel("Time [Hour]")
     plt.ylabel("Accumulated Energy [kWh]")
-    plt.show()
+    
+    fig.savefig(my_path + "EnergyReadingPlot.png")
 
     #Set codeFinished to true
     codeFinished = True
     return(codeFinished)
 
-#### Main ###
-plot = plotMeterOutput("Output/MeterData.csv")
-print(plot)

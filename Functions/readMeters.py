@@ -3,15 +3,12 @@ import pandas as pd
 
 
 #Function for reading the time series data from the ciruit's energy meters
-# And storing results in a csv file
+# And storing results in a csv file and a list object
 
 def readMeters(dss, num_meters, csv_path):
 
-    #Boolean variable to ensure code ran succesfully 
-    codeFinished = False
-
     #Set up the timestamp intervals to read from the meters
-    dss.text("set number=96")
+    dss.text("set number=48")
     dss.text("set stepsize=.5h")
     dss.text("set mode=daily")
 
@@ -61,7 +58,5 @@ def readMeters(dss, num_meters, csv_path):
     df = pd.DataFrame(total_energy_kw_list)
     df.to_csv(csv_path + "MeterData.csv")
 
-    #Set code finished to true
-    codeFinished = True
 
-    return(codeFinished)
+    return(total_energy_kw_list)

@@ -5,7 +5,7 @@ from random import randint
 import pandas as pd 
 
 #Create the manipulated data for each smart meter
-def attackFunctions(csv_fileName, output_path):
+def attackFunctions(input_csv_fileName, output_csv_fileName):
 
     #Boolean variable to ensure code ran succesfully (Could also use try catch blocks if needed)
     codeFinished = False
@@ -17,7 +17,7 @@ def attackFunctions(csv_fileName, output_path):
     num_meters = 0
 
     #Read from CSV file
-    with open(csv_fileName) as csvfile:
+    with open(input_csv_fileName) as csvfile:
         reader = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
         for row in reader: # each row is a list
             total_meter_readings.append(row[1:])
@@ -89,15 +89,10 @@ def attackFunctions(csv_fileName, output_path):
 
     #Transform data into a csv file
     df = pd.DataFrame(Overall_Attack)
-    df.to_csv(output_path + "AttackData.csv")
+    df.to_csv(output_csv_fileName)
 
     codeFinished = True
     return(codeFinished)
 
-    
 
-
-#### Main ###
-attacks = attackFunctions("Output/MeterData.csv","Output/")
-print(attacks)
 
