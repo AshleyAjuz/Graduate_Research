@@ -27,10 +27,10 @@ dss = placeMeters(dss_file,closeProx)
 EVData = read_csv("../../InputData/Weekday_Load_Profiles.csv") #Eventually make the csv parameter dynamic
 
 
-'''#Create list of example LoadNames and change load profiles
+#Create list of example LoadNames and change load profiles
 loadNames = ["s729a","s744a", "s728", "s730c", "s732c", "s731b"]
 
-dss = change_loadProfiles(dss,EVData,loadNames) '''
+dss = change_loadProfiles(dss,EVData,loadNames)
 
 #Read smart meter data and store in an array
 csv_path = "./Output/"
