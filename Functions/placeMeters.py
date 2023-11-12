@@ -13,7 +13,11 @@ def placeMeters(path, Lines):
 
     #Create the meters
     for i in range(num_meters):
-        dss.text(f"new energymeter.meter{i} element=Line.{Lines[i]} terminal=1")
+        dss.text(f'New EnergyMeter.meter{i}')
+        dss.text(f"edit Energymeter.meter{i} element=Line.{Lines[i]} enabled=True")
+
+    dss.solution_write_mode(1)
+    dss.solution_write_number(1)
 
     #return the dss interface
     return dss

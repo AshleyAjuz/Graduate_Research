@@ -11,6 +11,8 @@ def create_csv(data, csv_path):
     for i in range(len(data)):
         #Transform data into a csv file
         df = pd.DataFrame(data[i])
+         #The following line transposes the matrix so that the cols become the rows and vice versa if needed
+         #df = pd.DataFrame(data[i]).T
         df.to_csv(csv_path + f"Group{i}.csv")
 
      #Set codeFinished to true

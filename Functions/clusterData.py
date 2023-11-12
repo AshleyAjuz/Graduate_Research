@@ -2,6 +2,7 @@ from sklearn.cluster import KMeans
 from sklearn import datasets
 import os
 import matplotlib.pyplot as plt
+import numpy as np
 
 #Function to cluster the readings from all energy meters based on similarities in the energy consumtpion
 def FindOptimalClusters(data, cluster_rng, my_path):
@@ -16,7 +17,7 @@ def FindOptimalClusters(data, cluster_rng, my_path):
     #Max number of clusters is determined by user defined value
     for i in range(1,cluster_rng):
         kmeans = KMeans(n_clusters=i, random_state=0)
-        kmeans.fit(data)
+        kmeans.fit(np.gradient(data[:,:],axis=0))
         
         #Append the error
         sse.append(kmeans.inertia_)
@@ -38,19 +39,19 @@ def clustData(data, num_clusters):
 
     #Perform kmeans clustering given the optimal number of clusters
     kmeans = KMeans(n_clusters=num_clusters, init="k-means++")
-    kmeans = kmeans.fit(data)
+    kmeans = kmeans.fit(np.gradient(data[:,:],axis=1))
 
 
     #If you would like to  see the centers
     #kmeans.cluster_centers
 
     #Aggregate all the data together based on the kmeans labels (corresponds to the cluster each data point was projected to)
-    dataClusters = [[] for i in range(num_clusters)]
+    dataClusters = [[] for i in range(num_clusters+1)]
 
     #Initialize a variable to keep track of data array index
     count = 0
     for i in kmeans.labels_:
-        curMeter = data[count]
+        curMeter = data[count,:].tolist()
         dataClusters[i].append(curMeter)
         count = count + 1
     
