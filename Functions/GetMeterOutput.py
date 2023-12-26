@@ -21,7 +21,7 @@ def GetMeterOutput(dss, csv_path):
     for i in range(N):
         #Solve the circuit
         dss.text("solve")
-
+        
         #Start with first meter
         dss.meters_first()
 
@@ -32,7 +32,7 @@ def GetMeterOutput(dss, csv_path):
         for meter in names_meter:
             profile[i, count] = dss.meters_register_values()[0] # The energy output kWh of that register
             count += 1
-            dss.meters_next() #move onto the next meter
+            dss.meters_next() #move onto the next meter '''
     
     #Go to parent directory
     os.chdir('../../')
