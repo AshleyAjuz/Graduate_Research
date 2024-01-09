@@ -28,7 +28,7 @@ optimal_clusters = 3
 clusters, labels, cluster_means = clustData(benign_data, y_labs_B, optimal_clusters)
 
 # Initialize values for RNN alg and trustworthiness alg
-I = 10 # num of epochs
+I = 30 # num of epochs
 N = 428 # num of neurons for each layer
 K = 0.2 # Fraction for validation split
 threshold_1 = 0.5 #Threshold for distance based trustworthiness

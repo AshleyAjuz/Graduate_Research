@@ -67,45 +67,4 @@ K = 0.2 # Fraction for validation split
 DR_values, FA_values, HD_values = evaluateRNN(X_train, y_train, X_test, y_test, N, K, I)
 
 
-#Find optimal cluster amount and store plot in Output folder (used all the samples in this case)
-#clustersFound = FindOptimalClusters(np.array(X_c), len(X_c), csv_path)
-
-'''
-#Cluster data given the optimal number of clusters (found using the plot results from FindOptimalClusters)
-optimal_clusters = 10
-clusters, labels = clustData(np.array(X_c), y_labs, optimal_clusters)
-
-# Initialize values for RNN alg
-I = 10 # num of epochs
-N = 428 # num of neurons for each layer
-K = 0.2 # Fraction for validation split
-
-# Store the metrics from each RNN results
-DR_values = [0 for i in range(len(clusters))]
-FA_values = [0 for i in range(len(clusters))] 
-HD_values = [0 for i in range(len(clusters))] 
-
-
-for i in range(len(clusters)):
-    #Initialize dataset (take the average of the points in the cluster to create one representative energy profile )
-    dataset = clusters[i][:]
-    y_lab = labels[i]
-
-    #Create training dataset
-    idx = round(0.8*len(dataset))
-    X_train = dataset[0:idx]
-    y_train = y_lab[0:idx]
-
-    #Create testing dataset
-    X_test = dataset[idx:]
-    y_test = y_lab[idx:]
-
-    #Perform RNN
-    DR_values[i], FA_values[i], HD_values[i] = evaluateRNN(X_train, y_train, X_test, y_test, N, K, I)
-
-#Take the average of the metrics across the clusters to get the overall values
-DR_overall = statistics.mean(DR_values)
-FA_overall = statistics.mean(FA_values)
-HD_values = statistics.mean(HD_values)
-'''
 print("finished")

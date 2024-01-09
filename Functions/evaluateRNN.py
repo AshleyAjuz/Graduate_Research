@@ -49,7 +49,7 @@ def evaluateRNN(X_train, y_train, X_test, y_test, N, K, I):
     #Fit the model
     gru_model.fit(np.array(X_train), 
                   np.array(y_train), 
-                  epochs = 1,
+                  epochs = I,
                   verbose = 'auto',
                   validation_split = K,
                   shuffle = True)

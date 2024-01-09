@@ -19,7 +19,7 @@ def attackFunctions(benign_readings, attackfreq, csv_path):
     A3 = []
     A4 = []
     A5 = []
-    A6 = []
+    
 
 
     attackF = round(attackfreq * timeStamps)
