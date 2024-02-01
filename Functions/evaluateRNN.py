@@ -11,37 +11,20 @@ Parameters include:
     -K : Fraction of the training data to be used
     -I : Number of Epochs
 '''
-def evaluateRNN(X_train, y_train, X_test, y_test, N, K, I):
+def evalRNN(X_train, y_train, X_test, y_test, N, K, I):
+    
     
     samples, features = np.shape(X_train)
 
-    gru_model = keras.models.Sequential()
-    # Input layer
-    gru_model.add(keras.layers.Input(shape=(features,1)))
-    # GRU layer 1
-    gru_model.add(keras.layers.GRU(
-        N,
-        activation = "tanh",
-        recurrent_activation = "sigmoid",
-        use_bias = True,
-        kernel_initializer = 'glorot_uniform',
-        dropout = 0.2,
-        return_sequences = True,
-    ))
-    # GRU layer 2
-    gru_model.add(keras.layers.GRU(
-        N, 
-        activation = "tanh",
-        dropout = 0.2
-        ))
-  
-   # Output layer
-    gru_model.add(keras.layers.Dense(1, activation="softmax"))
+    gru_model = keras.Sequential()
+    gru_model.add(keras.layers.GRU(N,dropout=0.2,return_sequences=True,reset_after = True, input_shape=(features,1)))
+    gru_model.add(keras.layers.GRU(N,dropout=0.2,reset_after = True))
+    gru_model.add(keras.layers.Dense(2, activation="softmax"))
 
     #loss and optimizer
-    loss = keras.losses.BinaryCrossentropy(from_logits=False)
-    optim = keras.optimizers.Adam(learning_rate =  0.001)
-    metrics = [keras.metrics.BinaryAccuracy(), keras.metrics.FalseNegatives()]
+    loss = keras.losses.SparseCategoricalCrossentropy()
+    optim = keras.optimizers.Adamax(learning_rate =  0.001)
+    metrics = ["accuracy"]
 
     #Compile the model
     gru_model.compile(optim, loss, metrics)
@@ -51,23 +34,55 @@ def evaluateRNN(X_train, y_train, X_test, y_test, N, K, I):
                   np.array(y_train), 
                   epochs = I,
                   verbose = 'auto',
-                  validation_split = K,
                   shuffle = True)
+                  
+    #Predict output
+    y_pred = np.round(gru_model.predict(X_test))
+    
+    #for i in range(len(y_pred)):
+      #print("Expected=%s, Predicted=%s" % (y_test[i],y_pred[i]))
+      
     
     #Evaluate the model
-    gru_model.evaluate(X_test,
-                       y_test,
+    gru_model.evaluate(np.array(X_test),
+                       np.array(y_test),
+                       verbose = 'auto',
                        return_dict = False)
+                       
+    return(computeMetrics(y_test,y_pred))
+ 
+
+def computeMetrics(y_test, y_pred):
+
+    #First, transform y_pred format into same format as X_test
     
-    #Compute Metrics
-
-    #Assign the BinaryAcc metric to DR and the FalseNegative metric to FA
-    metric_res = gru_model.get_metrics_result()
-    DR = metric_res["accuracy"]
-    FA = metric_res[""]
-    HD = DR - FA
-
-    return (DR, FA, HD)
-
+    ynew = []
+    
+    for i in range(len(y_pred)):
+      ynew.append(list(y_pred[i]).index(1.0))
+      
+      
+    #Compute True Positive (TP), False Positive (FP), False Negative (FN), and True Negative (TN) rates
+    TP = 0
+    FP = 0
+    FN = 0
+    TN = 0
+    
+    for j in range(len(ynew)):
+      if(ynew[j] ==1 and y_test[j] == 1):
+        TP = TP + 1
+      elif(ynew[j] ==1 and y_test[j] == 0):
+        FP = FP + 1
+      elif(ynew[j] ==0 and y_test[j] == 1):
+        FN = FN + 1 
+      elif(ynew[j] ==0 and y_test[j] == 0):
+        TN = TN + 1    
 
     
+    #Compute DR, FPR, and HD
+    DR = float(TP/(TP + FP))
+    FPR = float(FP/(FP + TN))
+    HD = abs(DR - FPR)
+    
+    return(DR, FPR, HD)
+     

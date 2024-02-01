@@ -115,6 +115,7 @@ def attackFunctions(benign_readings, attackfreq, csv_path):
 
     #Concatenate all of the attack lists
     Overall_Attack = A1 + A2 + A3 + A4 + A5
+   
 
     #Transform data into a csv file
     df = pd.DataFrame(Overall_Attack)
