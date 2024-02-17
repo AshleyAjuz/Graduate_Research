@@ -33,7 +33,7 @@ def attackFunctions(benign_readings, attackfreq, csv_path):
     random.shuffle(overall_Attack_Freq)
 
     #Conduct first attack (reduce energy readings by some fraction a)
-    a = np.random.uniform(0.1, 0.8, 1)[0]
+    a = 0.15
 
     #Initialize the result list
     res = [0 for i in range(timeStamps)]
@@ -47,7 +47,7 @@ def attackFunctions(benign_readings, attackfreq, csv_path):
         A1.append( res.copy() )
 
     #Conduct second attack (reduce energy readings by a dynamic amount)
-    B = np.random.uniform(0.1, 0.8, timeStamps).tolist()
+    B = np.random.uniform(0.1, 0.15, timeStamps).tolist()
 
     for x in range(numMeters):
         curMeter= benign_readings[x].tolist()
@@ -60,22 +60,13 @@ def attackFunctions(benign_readings, attackfreq, csv_path):
 
     #Conduct third attack (report energy reading of 0 during a certain interval)
     #If the interval of time needs to change for each customer, add this section of code (line 40-46) to below for loop
-    t_i = np.random.randint(0, 42, 1)[0]
-    t_f = np.random.randint(8, 47, 1)[0]
-
-    #Need to report readings of 0 for each day (set of 48 intervals) in the dataset 
-    #There are roughly 505 sets of 48 intervals in this dataset
-    step_size = 505-round(attackfreq*504)
-    t_i_total = [t_i*i for i in range(1,505,step_size)]
-    t_f_total = [t_f*i for i in range(1,505,step_size)]
+    t_i = np.random.randint(0, timeStamps, 1)[0]
+    t_f = np.random.randint(t_i, timeStamps, 1)[0]
 
     #Create list of 1's
     list_multiplier = [1 for i in range(timeStamps)]
-    #Set specified intervals to 0
-    for x in range(len(t_i_total)):
-        start = t_i_total[x]
-        end = t_f_total[x]
-        list_multiplier[start:end] = [0 for x in range(end-start)]
+
+    list_multiplier[t_i:t_f] = [0 for x in range(t_f-t_i)]
 
     for x in range(numMeters):
         curMeter = benign_readings[x].tolist()
@@ -97,7 +88,7 @@ def attackFunctions(benign_readings, attackfreq, csv_path):
     
 
     #Conduct fifth attack (report the mean of the energy readings that has been reduced by a dynamic amount )
-    B_2 = np.random.uniform(0.1, 0.8, len(benign_readings[0].tolist())).tolist()
+    B_2 = np.random.uniform(0.1, 0.15, len(benign_readings[0].tolist())).tolist()
 
     for x in range(numMeters):
         curMeter = benign_readings[x].tolist()
