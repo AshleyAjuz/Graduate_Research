@@ -1,22 +1,23 @@
 import os
 import numpy as np
 import pandas as pd
-import statistics
 import random
-from Functions.RNN_Forecastor import RNN_forecastor
+#from Functions.RNN_Forecastor import RNN_forecastor
 from Functions.attackFunctions import attackFunctions
-from Functions.evaluateRNN import evaluateRNN
+from Functions.evaluateRNN import evalRNN
+from Functions.preProcess import oversample
 from Functions.preProcess import preProcess
-from Functions.clusterData import clustData
-from Functions.create_csv import create_csv
-from Functions.RNNAlg import findOptimalParams
-from Functions.RNNAlg import RNN
+from Functions.plotDataset import plotDataset
+import matplotlib.pyplot as plt
 from itertools import chain 
 
 
 #Load in the benign datset of energy readings for 10 customers over a 3 year period
-useCols =[f"Meter 0{i}" for i in range(10)]
-benign_data = pd.read_csv("London_SM_data_total.csv", usecols=useCols).to_numpy().transpose()
+useCols =[f"Meter 0{i}" for i in range(1,10)]
+benign_data = pd.read_csv("InputData/London_SM_data_total.csv", usecols=useCols).to_numpy().transpose()
+test_B = pd.read_csv("InputData/london_energy.csv")
+
+finaldf = preProcess(test_B)
 
 #Need to create a label vector to denote that the readings are benign (y=0)
 y_labs_B = [0 for i in range(len(benign_data))]
@@ -41,7 +42,8 @@ y_labs = y_labs_B + y_labs_M
 # and to ensure that all of te inputs are within similar range to each other 
 # Having an unablance dataset might consequently cause the RNN to bias to the malicious class
 # Therefore, we need to redefine X_c and y_labs so that the ratio between the datasets are more similar
-X_c, y_labs = preProcess(X_c, y_labs)
+X_c, y_labs = oversample(X_c, y_labs)
+
 
 ##Shuffle the datasets to make sure training and testing lists will have an even amount of benign and malicious reports
 zipped = list(zip(X_c, y_labs))
@@ -54,17 +56,22 @@ idx = round(0.8*len(X_c))
 X_train = X_c[0:idx]
 y_train = y_labs[0:idx]
 
+#Data analysis for training
+plotDataset(X_train, y_train,"Training", "./Output/","TrainingPlots")
+
 #Create testing dataset
 X_test = X_c[idx:]
 y_test = y_labs[idx:]
 
+#Data analysis for testing set
+plotDataset(X_test, y_test, "Testing","./Output/","TestPlots")
+
 # Initialize values for RNN alg
 I = 10 # num of epochs
 N = 428 # num of neurons for each layer
-K = 0.2 # Fraction for validation split
 
 #Perform RNN
-DR_values, FA_values, HD_values = evaluateRNN(X_train, y_train, X_test, y_test, N, K, I)
+DR_values, FA_values, HD_values = evalRNN(X_train, y_train, X_test, y_test, N, K, I)
 
 
 print("finished")

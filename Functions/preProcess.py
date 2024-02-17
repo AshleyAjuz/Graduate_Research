@@ -5,13 +5,19 @@ from imblearn.over_sampling import ADASYN
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import StandardScaler
 
+<<<<<<< HEAD
 def preProcess(df, csv_path):
      #Get all of the customer IDs
+=======
+def preProcess(df):
+    #Get all of the customer IDs
+>>>>>>> ba74d324abe667369e76ca0901e9678871a804c8
     custIds = df["LCLid"].unique().tolist()
 
     #Get all unique Dates
     dates = df["Date"].unique().tolist()
 
+<<<<<<< HEAD
     #Array of index lengths
     arr_ind = []
 
@@ -38,6 +44,17 @@ def preProcess(df, csv_path):
     '''
 
     finalTable.to_csv(csv_path + "Tidy_LCL_Data.csv")
+=======
+    #Make a new dataframe
+    temp = pd.DataFrame(index = dates, columns = custIds)
+
+    #Import energy consumption from df into the temp datafram
+    for name in custIds:
+        curDates = df[df["LCLid"]==name]["Date"].tolist()
+        temp[name][curDates] = df[df["LCLid"]==name]["KWH"]
+
+    print("Here")
+>>>>>>> ba74d324abe667369e76ca0901e9678871a804c8
     
 
 
