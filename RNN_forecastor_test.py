@@ -5,7 +5,7 @@ import random
 from Functions.RNN_Forecastor import RNN_forecastor
 from Functions.RNN_Forecastor import split_sequence
 from Functions.RNN_Forecastor import isUnderAttack
-from Functions.evalRNN import computeMetrics
+from Functions.RNN_Forecastor import computeMetrics
 from Functions.attackFunctions import attackFunctions
 from Functions.preProcess import oversample
 import matplotlib.pyplot as plt
@@ -69,7 +69,7 @@ X_c, y_labs, custIDs = zip(*zipped)
 
 #Initialize needed variables
 sc = MinMaxScaler(feature_range=(0,1))
-thrs = 10
+thrs = round(0.5*width)
 overall_res = []
 
 for i in range(len(X_c)):
@@ -97,7 +97,7 @@ for i in range(len(X_c)):
 
 
 #Get accuracy of results by comparing the entries in the y_labels with the overall_results
-Acc = sum(overall_res == y_labs)/len(y_labs)
+Acc = sum(np.array(overall_res) == np.array(y_labs))/len(y_labs)
 
 #Get remaining metrics form compute metrics function
 DR, FPR, HD = computeMetrics(y_labs, overall_res)

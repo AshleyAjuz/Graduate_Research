@@ -74,7 +74,7 @@ y_test = y_labs[idx:]
 # Initialize values for RNN alg
 I = 10 # num of epochs
 B = 350 # Batch Size
-N = 428 # num of neurons for each layer
+N = 215 # num of neurons for each layer
 
 #Perform RNN
 DR_values, FA_values, HD_values = evalRNN(X_train, y_train, X_test, y_test, N, B, I)

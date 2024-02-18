@@ -48,7 +48,7 @@ def plot_predictions(test, predicted, my_path, filename):
 
 
 
-def evaluateMetrics(test, predicted):
+def evaluateTraining(test, predicted):
     #Redefine the test and predicted sets
     test = test.tolist()
     predicted = predicted.tolist()
@@ -79,7 +79,7 @@ def evaluateMetrics(test, predicted):
 
 def isUnderAttack(test, predicted,rmse,thrs):
     isCompromised = False
-
+    count = 0
 
     #Redefine the test and predicted sets
     test = test.tolist()
@@ -97,7 +97,31 @@ def isUnderAttack(test, predicted,rmse,thrs):
    
     return isCompromised
 
+def computeMetrics(y_test, y_pred):
+      
+    #Compute True Positive (TP), False Positive (FP), False Negative (FN), and True Negative (TN) rates
+    TP = 0
+    FP = 0
+    FN = 0
+    TN = 0
+    
+    for j in range(len(y_pred)):
+      if(y_pred[j] ==1 and y_test[j] == 1):
+        TP = TP + 1
+      elif(y_pred[j] ==1 and y_test[j] == 0):
+        FP = FP + 1
+      elif(y_pred[j] ==0 and y_test[j] == 1):
+        FN = FN + 1 
+      elif(y_pred[j] ==0 and y_test[j] == 0):
+        TN = TN + 1    
 
+    
+    #Compute DR, FPR, and HD
+    DR = float(TP/(TP + FP))
+    FPR = float(FP/(FP + TN))
+    HD = abs(DR - FPR)
+    
+    return(DR, FPR, HD)
 
 
 
@@ -145,7 +169,7 @@ def RNN_forecastor(dataset, start_tind, end_tind, n_steps, my_path, filename):
 
 
 
-    model_gru.fit(X_train, y_train, epochs=50, batch_size=32)
+    model_gru.fit(X_train, y_train, epochs=30, batch_size=32)
 
 
     #Repeat processing and normalize the test set
@@ -176,7 +200,7 @@ def RNN_forecastor(dataset, start_tind, end_tind, n_steps, my_path, filename):
 
 
     #Print out the RMSE
-    rmse = evaluateMetrics(y_test, predicted_results)
+    rmse = evaluateTraining(y_test, predicted_results)
 
 
     #Return the model's predictions
