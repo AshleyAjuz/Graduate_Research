@@ -28,7 +28,7 @@ length, width = np.shape(benign_data)
 
 
 #Determine split for training and testing
-idx = round(0.8*width)
+idx = round(0.7*width)
 
 # Initialize values for RNN Forecastor
 tstart = 0
@@ -43,14 +43,24 @@ mdl, rmse = RNN_forecastor(benign_data.T, tstart, tend, n_steps, csv_path, "Pred
 #Create attack data using the benign datset
 attack_data = attackFunctions(benign_data, 1, csv_path)
 
+#Create an array to store attack Ids
+attack_IDs = [1,2,3,4,5]
+
 #Need to create a label vector to denote that the readings are malicious (y=1)
 y_labs_M =  [1 for i in range(len(attack_data))]
 
 #Create customer ID array for the attack dataset
 custIDs_attack = custIds_benign * 5
 
+
 #Combine both sets of customer ID arrays
 custIDs = custIds_benign + custIDs_attack
+
+#Extend the attack IDs array to include both the benign and attack dataset
+attack_IDs = y_labs_B + (attack_IDs * 50)
+
+#Hash to store occurences of attacks
+attack_occ = {'0':0, '1':0, '2':0 , '3':0, '4':0, '5':0}
 
 #Combine the benign_data and attack_data together to create the complete dataset (referred to as X_c in reference)
 X_c = benign_data.tolist() + attack_data
@@ -60,26 +70,26 @@ y_labs = y_labs_B + y_labs_M
 
 #X_c, y_labs = oversample(X_c, y_labs)
 
-
 ##Shuffle the datasets 
-zipped = list(zip(X_c, y_labs, custIDs))
+zipped = list(zip(X_c, y_labs, custIDs, attack_IDs))
 random.shuffle(zipped)
-X_c, y_labs, custIDs = zip(*zipped)
+X_c, y_labs, custIDs, attackIDs = zip(*zipped)
 
 
 #Initialize needed variables
 sc = MinMaxScaler(feature_range=(0,1))
-thrs = round(0.5*width)
+thrs = round(0.3*width)
 overall_res = []
 
 for i in range(len(X_c)):
     honest_data = benign_data[custIDs[i],:]
     cur_data = np.array(X_c[i][:])
+    cur_attack = attackIDs[i]
 
     honest_data = honest_data.reshape(-1, 1)
     training_set_scaled = sc.fit_transform(honest_data)
 
-    honest_data_X, honest_data_y = split_sequence(honest_data, n_steps)
+    honest_data_X, honest_data_y = split_sequence(training_set_scaled, n_steps)
     honest_data_X = np.asarray(honest_data_X).astype('float64')
 
     honest_data_X = honest_data_X.reshape(honest_data_X.shape[0],honest_data_X.shape[1],1)
@@ -93,7 +103,11 @@ for i in range(len(X_c)):
 
     cur_res = isUnderAttack(honest_data_y,cur_data_y,rmse,thrs)
 
-    overall_res.append(1 if cur_res else 0)
+    if cur_res:
+        overall_res.append(1)
+        attack_occ[f"{cur_attack}"] += 1
+    else:
+        overall_res.append(0)
 
 
 #Get accuracy of results by comparing the entries in the y_labels with the overall_results
@@ -101,6 +115,14 @@ Acc = sum(np.array(overall_res) == np.array(y_labs))/len(y_labs)
 
 #Get remaining metrics form compute metrics function
 DR, FPR, HD = computeMetrics(y_labs, overall_res)
+
+#Compute confusion matrix to store which attacks are detected the most
+cf = [0]
+for i in range(1,6):
+    totalOcc = sum(np.array(attack_IDs) == i)
+    instancesFound = attack_occ[f"{i}"] 
+    cf.append(float(instancesFound/totalOcc))
+
 
 #Print out returned values
 print(f"The overall Accuracy is {Acc*100}. The DR_value is {DR}. The FPR_value is {FPR}. The HD_values is {HD}")

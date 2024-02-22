@@ -12,6 +12,24 @@ from sklearn.metrics import mean_squared_error
 
 from tensorflow import keras
 
+def train_test_plot(dataset, tstart, tend, my_path, filename):
+   
+    fig, ax = plt.subplots() 
+
+    data = dataset.T
+    x = np.linspace(tstart,1, 408) 
+    train_cust_0 = data[0][tstart:tend+1]
+    test_cust_0 = data[0][tend:]
+
+    ax.plot(x[tstart:tend+1],train_cust_0, color='blue', label="Traing") 
+    ax.plot(x[tend:],test_cust_0, color='orange', label="Testing") 
+
+    ax.set_xlabel('Time') 
+    ax.set_ylabel('Energy Consumption') 
+    ax.set_title('Training vs Testing Split')
+    ax.legend()
+
+    fig.savefig(my_path + filename)
 
 def train_test_split(dataset, tstart, tend):
     train = dataset[tstart:tend]
@@ -32,7 +50,6 @@ def split_sequence(sequence, n_steps):
 
 
 def plot_predictions(test, predicted, my_path, filename):
-
 
     fig = plt.figure()
     plt.plot(test, color="gray", label="Real")
@@ -117,7 +134,7 @@ def computeMetrics(y_test, y_pred):
 
     
     #Compute DR, FPR, and HD
-    DR = float(TP/(TP + FP))
+    DR = float(TP/(TP + FN))
     FPR = float(FP/(FP + TN))
     HD = abs(DR - FPR)
     
@@ -131,6 +148,8 @@ def RNN_forecastor(dataset, start_tind, end_tind, n_steps, my_path, filename):
     #tensorflow.random.set_seed(455)
     #np.random.seed(455)
 
+    #Plot Training and testing split
+    train_test_plot(dataset, start_tind, end_tind, my_path, "Train_vs_Test.png")
 
     #Split up the dataset into training and testing
     training_set, test_set = train_test_split(dataset, start_tind, end_tind)
@@ -143,9 +162,6 @@ def RNN_forecastor(dataset, start_tind, end_tind, n_steps, my_path, filename):
     sc = MinMaxScaler(feature_range=(0,1))
     training_set = training_set.reshape(-1, 1)
     training_set_scaled = sc.fit_transform(training_set)
-
-
-   
 
 
     #We also need to split the training set into X_train (inputs) and y_train (outputs)
@@ -169,7 +185,7 @@ def RNN_forecastor(dataset, start_tind, end_tind, n_steps, my_path, filename):
 
 
 
-    model_gru.fit(X_train, y_train, epochs=30, batch_size=32)
+    model_gru.fit(X_train, y_train, epochs=20, batch_size=32)
 
 
     #Repeat processing and normalize the test set
