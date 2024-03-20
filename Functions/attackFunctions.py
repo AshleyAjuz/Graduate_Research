@@ -11,7 +11,12 @@ def attackFunctions(benign_readings, attackfreq, csv_path):
 
     #Create variable to store the number of meters present
     dimensions = np.shape(benign_readings)
-    numMeters, timeStamps= dimensions
+   
+    if(len(dimensions) == 1):
+        numMeters = 1
+        timeStamps = dimensions[0]
+    else:
+        numMeters, timeStamps= dimensions
 
     #Create lists for each attack
     A1 = []
@@ -38,7 +43,7 @@ def attackFunctions(benign_readings, attackfreq, csv_path):
     #Initialize the result list
     res = [0 for i in range(timeStamps)]
     for x in range(numMeters):
-        curMeter= benign_readings[x].tolist()
+        curMeter= benign_readings[x].tolist() if numMeters>1 else benign_readings.tolist()
         for y in range(timeStamps):
             if overall_Attack_Freq[y]==1:
                 res[y] = a * curMeter[y]
@@ -50,7 +55,8 @@ def attackFunctions(benign_readings, attackfreq, csv_path):
     B = np.random.uniform(0.1, 0.15, timeStamps).tolist()
 
     for x in range(numMeters):
-        curMeter= benign_readings[x].tolist()
+        #If statement to account for the case that only one customer is sent int
+        curMeter= benign_readings[x].tolist() if numMeters>1 else benign_readings.tolist()
         for y in range(timeStamps):
             if overall_Attack_Freq[y]==1:
                 res[y] = B[y] * curMeter[y]
@@ -69,14 +75,14 @@ def attackFunctions(benign_readings, attackfreq, csv_path):
     list_multiplier[t_i:t_f] = [0 for x in range(t_f-t_i)]
 
     for x in range(numMeters):
-        curMeter = benign_readings[x].tolist()
+        curMeter = benign_readings[x].tolist() if numMeters>1 else benign_readings.tolist()
         res = [list_multiplier[i] * curMeter[i] for i in range(len(curMeter))]
         A3.append( res.copy() )
  
 
     #Conduct fourth attack (report the mean of the energy readings )
     for x in range(numMeters):
-        curMeter = benign_readings[x].tolist()
+        curMeter = benign_readings[x].tolist() if numMeters>1 else benign_readings.tolist()
         mean = sum(curMeter)/len(curMeter)
         for y in range(timeStamps):
             if overall_Attack_Freq[y] == 1:
@@ -88,14 +94,13 @@ def attackFunctions(benign_readings, attackfreq, csv_path):
     
 
     #Conduct fifth attack (report the mean of the energy readings that has been reduced by a dynamic amount )
-    B_2 = np.random.uniform(0.1, 0.15, len(benign_readings[0].tolist())).tolist()
 
     for x in range(numMeters):
-        curMeter = benign_readings[x].tolist()
+        curMeter = benign_readings[x].tolist() if numMeters>1 else benign_readings.tolist()
         mean = sum(curMeter)/len(curMeter)
         for y in range(timeStamps):
             if overall_Attack_Freq[y] == 1:
-                res[y] = B_2[y] * mean
+                res[y] = B[y] * mean
             else:
                 res[y] = curMeter[y]
         A5.append( res.copy() )
@@ -109,8 +114,8 @@ def attackFunctions(benign_readings, attackfreq, csv_path):
    
 
     #Transform data into a csv file
-    df = pd.DataFrame(Overall_Attack)
-    df.to_csv(csv_path + "AttackData.csv")
+    #df = pd.DataFrame(Overall_Attack)
+    #df.to_csv(csv_path + "AttackData.csv")
 
     return(Overall_Attack)
 

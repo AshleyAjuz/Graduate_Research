@@ -1,4 +1,3 @@
-import os
 import numpy as np
 import pandas as pd
 import random
@@ -14,7 +13,7 @@ from sklearn.preprocessing import MinMaxScaler
                             ############### Testing with no clusters ############
 
 #Dataset of energy readings for 400 customers over 3 years
-benign_data = pd.read_csv("Output/tidy_LCL_Data.csv").to_numpy().transpose()[1:,:]
+benign_data = pd.read_csv("Output/Tidy_LCL_Data_2Y.csv").to_numpy().transpose()[1:,:]
 
 #Need to create a label vector to denote that the readings are benign (y=0)
 y_labs_B = [0 for i in range(len(benign_data))]
@@ -57,9 +56,9 @@ custIDs_attack = custIds_benign * 5
 custIDs = custIds_benign + custIDs_attack
 
 #Extend the attack IDs array to include both the benign and attack dataset
-attack_IDs = y_labs_B + (attack_IDs * 50)
+attack_IDs = y_labs_B + (attack_IDs * length)
 
-#Hash to store occurences of attacks
+#Hashmap to store occurences of attacks
 attack_occ = {'0':0, '1':0, '2':0 , '3':0, '4':0, '5':0}
 
 #Combine the benign_data and attack_data together to create the complete dataset (referred to as X_c in reference)
@@ -79,6 +78,7 @@ X_c, y_labs, custIDs, attackIDs = zip(*zipped)
 #Initialize needed variables
 sc = MinMaxScaler(feature_range=(0,1))
 thrs = round(0.3*width)
+eps = rmse * 0.3
 overall_res = []
 
 for i in range(len(X_c)):
@@ -101,7 +101,7 @@ for i in range(len(X_c)):
 
     cur_data_X, cur_data_y = split_sequence(cur_data_scaled, n_steps)
 
-    cur_res = isUnderAttack(honest_data_y,cur_data_y,rmse,thrs)
+    cur_res = isUnderAttack(honest_data_y,cur_data_y,rmse, eps,thrs)
 
     if cur_res:
         overall_res.append(1)
@@ -126,3 +126,4 @@ for i in range(1,6):
 
 #Print out returned values
 print(f"The overall Accuracy is {Acc*100}. The DR_value is {DR}. The FPR_value is {FPR}. The HD_values is {HD}")
+print(f"Attack 1:{cf[1]},Attack 2:{cf[2]}, Attack 3:{cf[3]}, Attack 4:{cf[4]}, Attack 5:{cf[5]} ")

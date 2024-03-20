@@ -74,15 +74,17 @@ def evaluateTraining(test, predicted):
     #Define variables
     Acc = 0
 
-
     #Calculate the root mean squared erro
     #This will be the threshold value to compare the difference between the predicted and real results to
     rmse = np.sqrt(mean_squared_error(test[:len(predicted)], predicted))
 
+    #Compute epsilon value that will act as standard deviation to add the rmse
+    eps = rmse *.30
+
 
     for j in range(len(predicted)):
         diff = abs(test[j][0] - predicted[j][0])
-        if(diff <= rmse):
+        if(diff < rmse + eps) :
             Acc += 1
    
     Acc = float(Acc/len(predicted))
@@ -94,7 +96,7 @@ def evaluateTraining(test, predicted):
     return(rmse)
 
 
-def isUnderAttack(test, predicted,rmse,thrs):
+def isUnderAttack(test, predicted, rmse, eps, thrs):
     isCompromised = False
     count = 0
 
@@ -105,7 +107,7 @@ def isUnderAttack(test, predicted,rmse,thrs):
 
     for j in range(len(predicted)):
         diff = abs(test[j][0] - predicted[j][0])
-        if(diff > rmse):
+        if(diff > rmse + eps):
             count+=1
        
         if(count > thrs):
@@ -149,7 +151,7 @@ def RNN_forecastor(dataset, start_tind, end_tind, n_steps, my_path, filename):
     #np.random.seed(455)
 
     #Plot Training and testing split
-    train_test_plot(dataset, start_tind, end_tind, my_path, "Train_vs_Test.png")
+    #train_test_plot(dataset, start_tind, end_tind, my_path, "Train_vs_Test.png")
 
     #Split up the dataset into training and testing
     training_set, test_set = train_test_split(dataset, start_tind, end_tind)
@@ -175,7 +177,7 @@ def RNN_forecastor(dataset, start_tind, end_tind, n_steps, my_path, filename):
 
     #Create the GRU model and compile
     model_gru = keras.models.Sequential()
-    model_gru.add(keras.layers.GRU(units=125, activation="tanh", input_shape=(n_steps, 1)))
+    model_gru.add(keras.layers.LSTM(units=215, activation="tanh", input_shape=(n_steps, 1)))
     model_gru.add(keras.layers.Dense(units=1))
 
 
@@ -183,9 +185,7 @@ def RNN_forecastor(dataset, start_tind, end_tind, n_steps, my_path, filename):
     #model_gru.summary()
 
 
-
-
-    model_gru.fit(X_train, y_train, epochs=20, batch_size=32)
+    model_gru.fit(X_train, y_train, epochs=5, batch_size=64)
 
 
     #Repeat processing and normalize the test set
@@ -212,7 +212,7 @@ def RNN_forecastor(dataset, start_tind, end_tind, n_steps, my_path, filename):
 
 
     #Plot the result
-    plot_predictions(y_test,predicted_results, my_path, filename)
+    #plot_predictions(y_test,predicted_results, my_path, filename)
 
 
     #Print out the RMSE

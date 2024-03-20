@@ -36,7 +36,6 @@ def oversample(X, y):
     #Perform feature scaling
 
     sc = MinMaxScaler()
-    #sc = StandardScaler()
     X_oversampled = sc.fit_transform(X_oversampled).tolist()
 
     return(X_oversampled, y_oversampled)
